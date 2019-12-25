@@ -3,7 +3,7 @@
     <div class="ui grid centered">
       <div class="eight wide computer fourteen wide phone column box2 chat-box">
         <div class="ui grey ribbon label">Welcome to chat {{user.nick}}</div>
-        <div class="ui card">
+        <div class="ui card" v-chat-scroll>
           <div class="ui segments">
             <div class="ui segment" v-for="message in messages">
               <div class="ui horizontal label" :style="{backgroundColor:message.color}">{{message.nick}}</div>
