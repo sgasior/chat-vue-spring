@@ -2,85 +2,24 @@
   <main>
     <div class="ui grid centered">
       <div class="eight wide computer fourteen wide phone column box2 chat-box">
-        <div class="ui grey ribbon label">Welcome to chat {{userName}}</div>
+        <div class="ui grey ribbon label">Welcome to chat {{user.nick}}</div>
         <div class="ui card">
           <div class="ui segments">
-            <div class="ui segment">
-              <div class="ui purple horizontal label">{{userName}}</div>
-              message
-            </div>
-            <div class="ui segment">
-              <div class="ui purple horizontal label">Candy</div>
-
-            </div>
-            <div class="ui segment">
-              <div class="ui purple horizontal label">Candy</div>
-              Top
-            </div>
-            <div class="ui segment">
-              <div class="ui purple horizontal label">Candy</div>
-              Top
-            </div>
-            <div class="ui segment">
-              <div class="ui blue horizontal label">Candy</div>
-              Top
-            </div>
-            <div class="ui segment">
-              <div class="ui purple horizontal label">Candy</div>
-              Top
-            </div>
-            <div class="ui segment">
-              <div class="ui purple horizontal label">Candy</div>
-              Top
-            </div>
-            <div class="ui segment">
-              <div class="ui purple horizontal label">Candy</div>
-              Top
-            </div>
-            <div class="ui segment">
-              <div class="ui purple horizontal label">Candy</div>
-              Top
-            </div>
-            <div class="ui segment">
-              <div class="ui purple horizontal label">Candy</div>
-              Top
+            <div class="ui segment" v-for="message in messages">
+              <div class="ui horizontal label" :style="{backgroundColor:message.color}">{{message.nick}}</div>
+              {{message.value}}
             </div>
           </div>
         </div>
         <div class="ui fluid action input">
-          <input type="text" placeholder="Message...">
-
+          <input type="text" placeholder="Message..." v-model="message" @keydown.enter="sendMessage" ref="msg">
           <div class="ui button btn-pop"><i class="smile outline icon"></i></div>
           <div class="ui flowing popup transition hidden">
             <div class="faces">
               <div class="ui grid">
                 <div class="three column row">
-                  <div class="column">
-                    <div class="face">( ͡o ͜ʖ ͡o)</div>
-                  </div>
-                  <div class="column">
-                    <div class="face">( ͡o ͜ʖ ͡o)</div>
-                  </div>
-                  <div class="column">
-                    <div class="face">(▀̿Ĺ̯▀̿ ̿)</div>
-                  </div>
-                  <div class="column">
-                    <div class="face">¯\_( ͡° ͜ʖ ͡°)_/¯</div>
-                  </div>
-                  <div class="column">
-                    <div class="face">ᕦ( ͡° ͜ʖ ͡°)ᕤ</div>
-                  </div>
-                  <div class="column">
-                    <div class="face">¯\_(ツ)_/¯</div>
-                  </div>
-                  <div class="column">
-                    <div class="face">( ͡° ͜ʖ ͡°)╭∩╮</div>
-                  </div>
-                  <div class="column">
-                    <div class="face">( ͡°( ͡° ͜ʖ( ͡° ͜ʖ ͡°)ʖ ͡°) ͡°)</div>
-                  </div>
-                  <div class="column">
-                    <div class="face">( ͡ʘ ͜ʖ ͡ʘ)</div>
+                  <div class="column" v-for="(lennyFace,index) in lennyFaces" :key="index">
+                    <div class="face" @click="putIconIntoMessage(index)">{{lennyFace}}</div>
                   </div>
                 </div>
               </div>
@@ -95,12 +34,48 @@
 <script>
   export default {
     name: 'Chat',
-    props: ["userName"],
+    props: ["user"],
+    data() {
+      return {
+        lennyFaces: ['( ͡o ͜ʖ ͡o)', 'ಠ╭╮ಠ', '(▀̿Ĺ̯▀̿ ̿)',
+          '¯\\_( ͡° ͜ʖ ͡°)_/¯', 'ᕦ( ͡° ͜ʖ ͡°)ᕤ', '¯\\_(ツ)_/¯',
+          '( ͡° ͜ʖ ͡°)╭∩╮', '( ͡°( ͡° ͜ʖ( ͡° ͜ʖ ͡°)ʖ ͡°) ͡°)', '( ͡ʘ ͜ʖ ͡ʘ)'],
+        messages: [
+          {
+            nick: 'John',
+            value: 'Hello!',
+            color: '#ccda46'
+          },
+          {
+            nick: 'Syma',
+            value: 'How are you?',
+            color: '#a35638'
+          },
+        ],
+        message: ''
+      }
+    },
+    methods: {
+      putIconIntoMessage(index) {
+        let cursorPosition = this.$refs.msg.selectionStart;
+        this.message = `${this.message.substring(0, cursorPosition)}${this.lennyFaces[index]}${this.message.substring(cursorPosition, this.message.length)}`;
+      },
+      sendMessage() {
+        if (this.message.length > 0) {
+          this.messages.push({
+            nick: this.user.nick,
+            value: this.message,
+            color: this.user.color
+          });
+          this.message = '';
+        }
+      }
+    },
     mounted() {
       $('.btn-pop')
         .popup({
           on: 'click',
-          position   : 'top right',
+          position: 'top right',
         })
       ;
     }

@@ -17,8 +17,7 @@ const routes = [
     component: Chat,
     props: true,
     beforeEnter: (to, from, next) => {
-      console.log(to.params.userName);
-      if (to.params.userName) {
+      if (to.params.user) {
         next()
       } else {
         next({

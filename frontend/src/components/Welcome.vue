@@ -8,7 +8,7 @@
       <form class="ui fluid form">
         <div class="field">
           <div class="ui input focus">
-            <input type="text" placeholder="Nick name" v-model="userName"/>
+            <input type="text" placeholder="Nick name" v-model="user.nick"/>
           </div>
           <!--red basic-->
           <div class="ui pointing label" v-bind:class="hasErrorInUserName ? 'red' : ''">Please enter your nick</div>
@@ -29,20 +29,39 @@
     name: 'Welcome',
     data() {
       return {
-        userName: '',
+        user: {
+          nick: '',
+          color: null
+        },
         hasErrorInUserName: false
       }
     },
     methods: {
       enterChat() {
-        if (this.userName || this.userName.trim().length > 0) {
+        if (this.user.nick && this.user.nick.trim().length > 0) {
+          this.user.color = this.getRandomColor();
           this.$router.push({
             name: 'Chat',
-            params: {userName: this.userName}
+            params: {user: this.user}
           })
         } else {
           this.hasErrorInUserName = true;
         }
+      },
+      getRandomColor() {
+        let availableColors = [
+          '#fe9801',
+          '#ccda46',
+          '#f5cdaa',
+          '#fe9801',
+          '#4f98ca',
+          '#f67280',
+          '#d6e5fa',
+          '#a35638',
+          '#eea5f6',
+          '#76dbd1',
+        ];
+        return availableColors[Math.floor(Math.random() * availableColors.length)];
       }
     }
   }
@@ -73,12 +92,12 @@
     background-image: linear-gradient(60deg, #29323c 0%, #485563 100%);
   }
 
-  .welcome .login-button:hover{
+  .welcome .login-button:hover {
     background-image: linear-gradient(60deg, #29323c 0%, #485563 100%);
     color: #fff;
   }
 
-  .form .icon  {
+  .form .icon {
     color: #fff !important;
   }
 </style>
