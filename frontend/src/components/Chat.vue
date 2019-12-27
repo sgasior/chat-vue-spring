@@ -6,7 +6,7 @@
         <div class="ui card" v-chat-scroll>
           <div class="ui segments">
             <div class="ui segment" v-for="message in messages">
-              <div class="ui horizontal label" :style="{backgroundColor:message.color}">{{message.nick}}</div>
+              <div class="ui horizontal label" :style="{backgroundColor:message.user.color}">{{message.user.nick}}</div>
               {{message.value}}
             </div>
           </div>
@@ -32,6 +32,9 @@
 </template>
 
 <script>
+  import SockJS from "sockjs-client";
+  import Stomp from "webstomp-client";
+
   export default {
     name: 'Chat',
     props: ["user"],
@@ -41,16 +44,20 @@
           '¯\\_( ͡° ͜ʖ ͡°)_/¯', 'ᕦ( ͡° ͜ʖ ͡°)ᕤ', '¯\\_(ツ)_/¯',
           '( ͡° ͜ʖ ͡°)╭∩╮', '( ͡°( ͡° ͜ʖ( ͡° ͜ʖ ͡°)ʖ ͡°) ͡°)', '( ͡ʘ ͜ʖ ͡ʘ)'],
         messages: [
-          {
-            nick: 'John',
-            value: 'Hello!',
-            color: '#ccda46'
-          },
-          {
-            nick: 'Syma',
-            value: 'How are you?',
-            color: '#a35638'
-          },
+          /*          {
+                      user: {
+                        nick: 'John',
+                        color: '#ccda46'
+                      },
+                      value: 'Hello!'
+                    },
+                    {
+                      user: {
+                        nick: 'Syma',
+                        color: '#a35638'
+                      },
+                      value: 'How are you?',
+                    },*/
         ],
         message: ''
       }
@@ -59,18 +66,42 @@
       putIconIntoMessage(index) {
         let cursorPosition = this.$refs.msg.selectionStart;
         this.message = `${this.message.substring(0, cursorPosition)}${this.lennyFaces[index]}${this.message.substring(cursorPosition, this.message.length)}`;
-      },
+      }
+      ,
       sendMessage() {
         if (this.message.length > 0) {
-          this.messages.push({
-            nick: this.user.nick,
+          let msg = ({
+            user: {
+              nick: this.user.nick,
+              color: this.user.color
+            },
             value: this.message,
-            color: this.user.color
           });
+          this.stompClient.send("/app/chat", JSON.stringify(msg));
           this.message = '';
         }
       }
-    },
+      ,
+      connect() {
+        this.socket = new SockJS("http://localhost:8888/chat");
+        this.stompClient = Stomp.over(this.socket);
+        this.stompClient.connect(
+          {},
+          frame => {
+            // console.log('frame', frame);
+            this.stompClient.subscribe("/topic/global", tick => {
+              // console.log('tick', tick);
+              // console.log('parse', JSON.parse(tick.body));
+              this.messages.push(JSON.parse(tick.body));
+            });
+          },
+          error => {
+            console.log('error', error);
+          }
+        );
+      }
+    }
+    ,
     mounted() {
       $('.btn-pop')
         .popup({
@@ -78,6 +109,10 @@
           position: 'top right',
         })
       ;
+    }
+    ,
+    created() {
+      this.connect()
     }
   }
 </script>
